@@ -70,9 +70,10 @@
             console.log("User ID: " + authData.uid + ", Provider: " + authData.provider);
             //Add last login
             authData.lastLogin = Date.now();
-            checkForModerator(authData, this.moderatorsRef, function(){
+            checkForModerator(authData, this.moderatorsRef, function(userObj){
+              this.account = userObj;
+              successCb(userObj);
             });
-            
           } else {
             console.error("Error authenticating user:", error);
             // [TODO] Return object if available
@@ -86,7 +87,7 @@
           if(userSnapshot.val() != null) {
             // Update existing moderator
             userRef.child('lastLogin').set(Date.now());
-            successCb(userSnapshot.val());
+            callback(userSnapshot.val());
           } else {
             // New Moderator
             var newModRef = argModeratorsRef.push(argUserData);
