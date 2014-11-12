@@ -4,8 +4,8 @@
     //Check for existance of Firebase
     if(typeof Firebase != 'undefined') {
       this.mainRef = new Firebase("https://pltw-presenter.firebaseio.com/")
-      this.chatRef = mainRef.child("chat");
-      this.usersRef = mainRef.child("users");
+      this.chatRef = this.mainRef.child("chat");
+      this.usersRef = this.mainRef.child("users");
       return this;
     }
     else throw Error('Firebase library does not exist. Check that firebase.js is included in your index.html file.');
@@ -32,12 +32,17 @@
         });
       },
       userLogin:function(argLoginData, successCb, errorCb) {
-        console.log('AdminLogin');
+        console.log('userLogin');
+        var currentThis = this;
         this.mainRef.authWithPassword(argLoginData, function(error, authData) {
           if (error === null) {
             // user authenticated with Firebase
             console.log("User ID: " + authData.uid + ", Provider: " + authData.provider);
             successCb(authData);
+            // Add account if it doesn't already exist
+            // checkForUser(authData, currentThis, function(userAccount){
+            //   successCb(userAccount);
+            // });
           } else {
             console.error("Error authenticating user:", error);
             // [TODO] Return object if available
@@ -47,13 +52,15 @@
       },
       userSignup:function(argSignupData, successCb, errorCb) {
         if(argSignupData && argSignupData.email && argSignupData.password) {
+          var currentThis = this;
+          var usersRef = this.usersRef;
           this.mainRef.createUser(argSignupData, function(error) {
             if (error === null) {
               console.log("User created successfully");
-              var currentAccount = this.usersRef.push(argSignupData);
-              //Set User Role
-              currentAccount.child('role').set(10);
-              this.userLogin(argSignupData, function(authData){
+              // Push new user data to users folder
+              var userObj = {email: argSignupData.email, createdAt: Date.now(), role:10};
+              var currentAccount = usersRef.push(userObj);
+              currentThis.userLogin(argSignupData, function(authData){
                 successCb(authData);
               });
             } else {
@@ -65,24 +72,23 @@
           throw Error('Invalid signupData');
         }
       }
-      // Single Checking function for all user types (should be in one folder)
-      // function checkForUser(argUserData, argModeratorsRef, callback) {
-      //   var userRef = argModeratorsRef.orderByChild(argUserData.email).on("value", function(userSnapshot) {
-      //     if(userSnapshot.val() != null) {
-      //       // Update existing moderator
-      //       userRef.child('lastLogin').set(Date.now());
-      //       callback(userSnapshot.val());
-      //     } else {
-      //       // New Moderator
-      //       var newModRef = argModeratorsRef.push(argUserData);
-      //       newModRef.setPriority(argUserData.email, function(){
-      //         newModRef.once('value', function(modSnap){
-      //           callback(modSnap.val());
-      //         });
-      //       });
-      //     }
-      //   });
-      // }
-  // }
-
   };
+        // Single Checking function for all user types (should be in one folder)
+      function checkForUser(argUserData, argUsersRef, callback) {
+        var userRef = argUsersRef.orderByChild(argUserData.email).on("value", function(userSnapshot) {
+          if(userSnapshot.val() != null) {
+            // Update existing moderator
+            userRef.child('lastLogin').set(Date.now());
+            callback(userSnapshot.val());
+          } else {
+            // New Moderator
+            var userObj = {email: argUserData.email, createdAt: Date.now(), role:10}
+            var newUserRef = argModeratorsRef.push(userObj);
+            newUserRef.setPriority(argUserData.email, function(){
+              newUserRef.once('value', function(userSnapshot){
+                callback(userSnapshot.val());
+              });
+            });
+          }
+        });
+      }
