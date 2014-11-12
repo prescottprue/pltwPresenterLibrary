@@ -1,6 +1,6 @@
 /* Pyro for Firebase*/
   
-  function PltwPresentation () {
+  function Pltw () {
     //Check for existance of Firebase
     if(Firebase) {
       this.mainRef = new Firebase("https://pltw-presenter.firebaseio.com/")
@@ -12,7 +12,7 @@
     }
     else throw Error('Firebase library does not exist. Check that firebase.js is included in your index.html file.');
   }
-   PltwPresentation.prototype = {
+   Pltw.prototype = {
       anonymousLogin: function(successCb, errorCb) {
         console.log('AnonymousLogin');
         this.mainRef.authAnonymously(function(error, authData){
@@ -29,7 +29,7 @@
           }
         });
       },
-      adminSignupAndLogin:function(argSignupData, successCb, errorCb) {
+      adminSignup:function(argSignupData, successCb, errorCb) {
         if(argSignupData && argSignupData.email && argSignupData.password) {
           this.mainRef.createUser(argSignupData, function(error) {
             if (error === null) {
