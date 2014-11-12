@@ -6,9 +6,12 @@ Create new instance:  `var lib = new Pltw()`
 
 ###Login Functionality: 
 
-Anonymous: `lib.anonymousLogin(successCb, errorCb)`
+Anonymous: 
+`lib.anonymousLogin(successCb, errorCb)`
 
-Admin: `lib.adminSignup(argSignupData, successCb, errorCb)`
-`lib.adminLogin(argLoginData, successCb, errorCb)`
+User: 
+*`lib.userSignup(argSignupData, successCb, errorCb)`
+*`lib.userLogin(argLoginData, successCb, errorCb)`
 
-Moderator: `lib.moderatorLogin(argLoginData, successCb, errorCb)`
+
+These login functions also store the data nessesary to view user information. Presense system will be included soon.
