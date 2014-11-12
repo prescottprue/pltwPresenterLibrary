@@ -2,7 +2,7 @@
   
   function Pltw () {
     //Check for existance of Firebase
-    if(Firebase) {
+    if(typeof Firebase != 'undefined') {
       this.mainRef = new Firebase("https://pltw-presenter.firebaseio.com/")
       this.chatRef = mainRef.child("chat");
       this.usersRef = mainRef.child("users");
@@ -83,6 +83,6 @@
       //     }
       //   });
       // }
-  }
+  // }
 
   };
